@@ -227,173 +227,212 @@
   }
 
   /* ════════════════════════════════════════════════════════════
-     4. SCROLL ANIMATIONS — 3D depth reveals for every section
+     4. SCROLL ANIMATIONS — Sequential, staggered reveals
+        Uses ScrollTrigger.batch() so cards in the same visible
+        row animate in clean left→right order, not randomly.
   ════════════════════════════════════════════════════════════ */
   function setupScrollAnimations() {
     if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
     gsap.registerPlugin(ScrollTrigger);
 
-    /* Desktop-aware trigger: fires when element is 25% from bottom on any screen */
+    /* Trigger threshold: when top of element hits 75% down the viewport */
     var T = 'top 75%';
 
-    /* Section labels */
+    /* ── 4a. Section labels — slide + line-reveal ── */
     gsap.utils.toArray('.section-label').forEach(function (el) {
       gsap.from(el, {
-        scrollTrigger: { trigger: el, start: T },
-        opacity: 0, x: -30, duration: 0.7, ease: 'power3.out'
+        scrollTrigger: { trigger: el, start: T, once: true },
+        opacity: 0,
+        x: -28,
+        duration: 0.65,
+        ease: 'power3.out'
       });
     });
 
-    /* Section titles — split words */
+    /* ── 4b. Section titles — 3D word cascade ── */
     gsap.utils.toArray('.section-title').forEach(function (el) {
-      var words = el.innerHTML.replace(/<br\s*\/?>/gi, ' <br> ').split(' ');
-      el.innerHTML = words.map(function (w) {
-        return w === '<br>' ? '<br>' : '<span class="word-wrap"><span class="word">' + w + '</span></span>';
+      /* Don't re-split if already split */
+      if (el.querySelector('.word')) return;
+
+      var html = el.innerHTML.replace(/<br\s*\/?>/gi, ' §BR§ ');
+      var parts = html.split(' ');
+      el.innerHTML = parts.map(function (w) {
+        if (w === '§BR§') return '<br>';
+        return '<span class="word-wrap"><span class="word">' + w + '</span></span>';
       }).join(' ');
 
       gsap.from(el.querySelectorAll('.word'), {
-        scrollTrigger: { trigger: el, start: T },
+        scrollTrigger: { trigger: el, start: T, once: true },
         opacity: 0,
-        y: 50,
-        rotationX: 60,
-        stagger: 0.07,
-        duration: 0.9,
-        ease: 'back.out(1.4)'
+        y: 48,
+        rotationX: 55,
+        stagger: { each: 0.065, ease: 'power1.in' },
+        duration: 0.85,
+        ease: 'back.out(1.6)'
       });
     });
 
-    /* Section sub text */
+    /* ── 4c. Sub headings — blur + fade up (sequential) ── */
     gsap.utils.toArray('.section-sub, .section-sub-light').forEach(function (el) {
       gsap.from(el, {
-        scrollTrigger: { trigger: el, start: T },
-        opacity: 0, y: 24, duration: 0.7, ease: 'power2.out'
-      });
-    });
-
-    /* Trust bar — slide + fade */
-    gsap.from('.trust-bar', {
-      scrollTrigger: { trigger: '.trust-bar', start: T },
-      opacity: 0, y: 20, duration: 0.6
-    });
-
-    /* Diff compare items — 3D card flip from depth */
-    gsap.utils.toArray('.diff-item').forEach(function (el, i) {
-      gsap.from(el, {
-        scrollTrigger: { trigger: el, start: T },
+        scrollTrigger: { trigger: el, start: T, once: true },
         opacity: 0,
-        y: 60,
-        rotationX: 30,
-        transformOrigin: '50% 0%',
-        duration: 0.85,
-        delay: i * 0.12,
-        ease: 'power3.out'
-      });
-    });
-
-    /* Developer cards — fly in from alternating sides with Z depth */
-    gsap.utils.toArray('.developer-card').forEach(function (el, i) {
-      var dir = i % 2 === 0 ? -1 : 1;
-      gsap.from(el, {
-        scrollTrigger: { trigger: el, start: T },
-        opacity: 0,
-        x: dir * 40,
-        z: -80,
-        rotationY: dir * 20,
+        y: 22,
+        filter: 'blur(4px)',
         duration: 0.75,
-        delay: (i % 3) * 0.1,
-        ease: 'power3.out'
+        ease: 'power2.out',
+        clearProps: 'filter'
       });
     });
 
-    /* Service / process cards */
-    gsap.utils.toArray('.service-card, .process-step').forEach(function (el, i) {
-      gsap.from(el, {
-        scrollTrigger: { trigger: el, start: T },
+    /* ── 4d. Trust bar ── */
+    var trustBar = document.querySelector('.trust-bar');
+    if (trustBar) {
+      gsap.from(trustBar.children, {
+        scrollTrigger: { trigger: trustBar, start: T, once: true },
         opacity: 0,
-        y: 40,
-        duration: 0.65,
-        delay: (i % 4) * 0.08,
-        ease: 'power3.out'
-      });
-    });
-
-    /* Blog / playbook cards */
-    gsap.utils.toArray('.blog-card, .playbook-card, .insight-card').forEach(function (el, i) {
-      gsap.from(el, {
-        scrollTrigger: { trigger: el, start: T },
-        opacity: 0,
-        y: 36,
+        y: 18,
+        stagger: 0.08,
         duration: 0.6,
-        delay: (i % 3) * 0.09,
         ease: 'power2.out'
       });
-    });
+    }
 
-    /* Testimonials */
-    gsap.utils.toArray('.testimonial-card').forEach(function (el, i) {
-      gsap.from(el, {
-        scrollTrigger: { trigger: el, start: T },
-        opacity: 0,
-        scale: 0.95,
-        y: 30,
-        duration: 0.7,
-        delay: i * 0.12,
-        ease: 'power2.out'
+    /* ── 4e. BATCH function — groups cards entering same viewport frame ── */
+    function batchAnimate(selector, fromVars, batchSize) {
+      batchSize = batchSize || 4;
+      ScrollTrigger.batch(selector, {
+        interval: 0.08,     // time window to collect a batch (seconds)
+        batchSize: batchSize,
+        start: T,
+        once: true,
+        onEnter: function (elements) {
+          gsap.from(elements, Object.assign({
+            stagger: { each: 0.1, from: 'start' },
+            clearProps: 'all'
+          }, fromVars));
+        }
       });
-    });
+    }
 
-    /* Form section — depth zoom in */
+    /* ── 4f. Service cards — rise up in order ── */
+    batchAnimate('.service-card', {
+      opacity: 0, y: 44, duration: 0.7, ease: 'power3.out'
+    }, 4);
+
+    /* ── 4g. Process steps — cascade left→right ── */
+    batchAnimate('.process-step', {
+      opacity: 0, y: 38, duration: 0.65, ease: 'power3.out'
+    }, 4);
+
+    /* ── 4h. Developer cards — Z-depth fly-in ── */
+    batchAnimate('.developer-card', {
+      opacity: 0, y: 50, z: -60, duration: 0.75, ease: 'power3.out'
+    }, 3);
+
+    /* ── 4i. Blog / playbook / insight cards ── */
+    batchAnimate('.blog-card', {
+      opacity: 0, y: 40, duration: 0.65, ease: 'power2.out'
+    }, 3);
+    batchAnimate('.playbook-card', {
+      opacity: 0, y: 40, duration: 0.65, ease: 'power2.out'
+    }, 3);
+    batchAnimate('.insight-card', {
+      opacity: 0, y: 36, duration: 0.65, ease: 'power2.out'
+    }, 3);
+
+    /* ── 4j. Testimonial cards — scale + rise ── */
+    batchAnimate('.testimonial-card', {
+      opacity: 0, scale: 0.94, y: 28, duration: 0.7, ease: 'power2.out'
+    }, 3);
+
+    /* ── 4k. Area cards (areas page) ── */
+    batchAnimate('.area-index-card', {
+      opacity: 0, y: 40, duration: 0.65, ease: 'power2.out'
+    }, 3);
+    batchAnimate('.area-highlight-card', {
+      opacity: 0, y: 36, duration: 0.6, ease: 'power2.out'
+    }, 4);
+    batchAnimate('.area-project-card', {
+      opacity: 0, y: 32, duration: 0.6, ease: 'power2.out'
+    }, 3);
+
+    /* ── 4l. Diff compare items ── */
+    batchAnimate('.diff-item', {
+      opacity: 0, y: 56, rotationX: 28, transformOrigin: '50% 0%',
+      duration: 0.85, ease: 'power3.out'
+    }, 2);
+    batchAnimate('.diff-them, .diff-me', {
+      opacity: 0, y: 28, duration: 0.65, ease: 'power3.out'
+    }, 2);
+
+    /* ── 4m. Stats / metrics — elastic pop ── */
+    batchAnimate('.metric, .stat-item, .proof-stat, .hs-stat', {
+      opacity: 0, scale: 0.72, y: 24, duration: 0.65, ease: 'back.out(2.2)'
+    }, 4);
+
+    /* ── 4n. Form section — depth zoom ── */
     var formSection = document.querySelector('.section-form');
     if (formSection) {
       gsap.from('.form-card', {
-        scrollTrigger: { trigger: formSection, start: T },
+        scrollTrigger: { trigger: formSection, start: T, once: true },
         opacity: 0,
-        y: 80,
-        z: -120,
-        rotationX: 15,
+        y: 72,
+        z: -100,
+        rotationX: 12,
         transformOrigin: '50% 100%',
-        duration: 1.1,
+        duration: 1.05,
         ease: 'expo.out'
       });
       gsap.from('.form-info > *', {
-        scrollTrigger: { trigger: formSection, start: T },
+        scrollTrigger: { trigger: formSection, start: T, once: true },
         opacity: 0,
-        x: -50,
-        stagger: 0.15,
-        duration: 0.9,
+        x: -44,
+        stagger: 0.13,
+        duration: 0.85,
         ease: 'power3.out'
       });
     }
 
-    /* Stats / metric items */
-    gsap.utils.toArray('.metric, .stat-item, .proof-stat').forEach(function (el, i) {
+    /* ── 4o. Area stats bar (area detail pages) ── */
+    batchAnimate('.area-stat', {
+      opacity: 0, y: 22, scale: 0.92, duration: 0.55, ease: 'power2.out'
+    }, 4);
+
+    /* ── 4p. Buttons / CTAs in sections ── */
+    gsap.utils.toArray('.section > .container > .btn, .section > .container > div > .btn').forEach(function (el) {
       gsap.from(el, {
-        scrollTrigger: { trigger: el, start: T },
+        scrollTrigger: { trigger: el, start: T, once: true },
         opacity: 0,
-        scale: 0.7,
-        y: 30,
-        duration: 0.7,
-        delay: i * 0.1,
-        ease: 'back.out(2)'
+        y: 16,
+        scale: 0.95,
+        duration: 0.55,
+        ease: 'back.out(1.5)'
       });
     });
 
-    /* Footer */
+    /* ── 4q. Footer — fade up ── */
     gsap.from('.footer', {
-      scrollTrigger: { trigger: '.footer', start: 'top 90%' },
+      scrollTrigger: { trigger: '.footer', start: 'top 92%', once: true },
       opacity: 0,
-      y: 30,
-      duration: 0.7
+      y: 28,
+      duration: 0.7,
+      ease: 'power2.out'
     });
 
-    /* Ambient section background parallax */
-    gsap.utils.toArray('.section').forEach(function (el) {
+    /* ── 4r. Scrub parallax on section backgrounds (subtle depth) ── */
+    gsap.utils.toArray('.section-dark').forEach(function (el) {
       gsap.fromTo(el,
         { backgroundPositionY: '0%' },
         {
-          backgroundPositionY: '20%',
+          backgroundPositionY: '15%',
           ease: 'none',
-          scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: true }
+          scrollTrigger: {
+            trigger: el,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: 0.8
+          }
         }
       );
     });

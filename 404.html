@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page Not Found | Mohamed Abdulwahab</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    body { background: #0a0f1e; color: #fff; }
+    .notfound {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 24px;
+    }
+    .notfound-inner { max-width: 520px; }
+    .notfound-code {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(6rem, 18vw, 10rem);
+      font-weight: 700;
+      color: #b89b5e;
+      line-height: 1;
+      margin-bottom: 0;
+      opacity: 0.9;
+    }
+    .notfound-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 600;
+      color: #fff;
+      margin: 16px 0 12px;
+    }
+    .notfound-sub {
+      font-size: 1rem;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.7;
+      margin-bottom: 36px;
+    }
+    .notfound-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .notfound-line {
+      width: 60px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #b89b5e, transparent);
+      margin: 20px auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="notfound">
+    <div class="notfound-inner">
+      <div class="notfound-code">404</div>
+      <div class="notfound-line"></div>
+      <h1 class="notfound-title">This page doesn't exist</h1>
+      <p class="notfound-sub">The property you're looking for may have moved or been taken off market. Let's get you back to something valuable.</p>
+      <div class="notfound-actions">
+        <a href="/" class="btn btn-primary">Back to Home</a>
+        <a href="/calculator/" class="btn btn-outline" style="color:#fff; border-color:rgba(255,255,255,0.3);">Investment Calculator</a>
+      </div>
+    </div>
+  </div>
+  <script src="/whatsapp.js"></script>
+</body>
+</html>

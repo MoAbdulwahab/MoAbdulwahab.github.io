@@ -136,48 +136,58 @@ img { max-width: 100%; display: block; }
 .nav-toggle {
   display: none;
   flex-direction: column;
+  align-items: center;
   justify-content: center;
   gap: 5px;
   background: none;
   border: none;
   cursor: pointer;
   padding: 8px;
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   flex-shrink: 0;
   margin-left: 4px;
-  border-radius: 8px;
+  border-radius: 10px;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
   transition: background 0.15s;
+  /* Always visible — explicit colour ensures contrast on any bg */
+  color: var(--color-text);
 }
 
 .nav-toggle:hover,
 .nav-toggle:focus-visible {
-  background: rgba(0,0,0,0.05);
+  background: rgba(0,0,0,0.07);
   outline: none;
+}
+
+/* Make touch-tap feel responsive */
+.nav-toggle:active {
+  background: rgba(0,0,0,0.12);
+  transform: scale(0.95);
 }
 
 .nav-toggle span {
   display: block;
-  width: 22px;
-  height: 2px;
+  width: 24px;
+  height: 2.5px;
   background: var(--color-text);
-  border-radius: 2px;
-  transition: transform 0.28s cubic-bezier(0.16,1,0.3,1), opacity 0.2s ease;
+  border-radius: 3px;
+  transition: transform 0.3s cubic-bezier(0.16,1,0.3,1), opacity 0.22s ease, width 0.3s ease;
   transform-origin: center;
 }
 
 /* X morph when open */
 .nav-toggle[aria-expanded="true"] span:nth-child(1) {
-  transform: translateY(7px) rotate(45deg);
+  transform: translateY(7.5px) rotate(45deg);
 }
 .nav-toggle[aria-expanded="true"] span:nth-child(2) {
   opacity: 0;
   transform: scaleX(0);
+  width: 0;
 }
 .nav-toggle[aria-expanded="true"] span:nth-child(3) {
-  transform: translateY(-7px) rotate(-45deg);
+  transform: translateY(-7.5px) rotate(-45deg);
 }
 
 /* ── Tablet & Phone nav (≤1024px) ─────────────────────── */
