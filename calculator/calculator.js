@@ -110,7 +110,7 @@ function submitLead() {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       access_key: '78092144-5fbb-45d4-9d01-5056b58d5eb1',
-      subject:    'Calculator Lead — ' + name + ' | ' + _currentStrategy,
+      subject:    'Calculator Lead — ' + name + (_currentStrategy ? ' | ' + _currentStrategy : ' | Page Load'),
       from_name:  'MA Investment Calculator',
       replyto:    email,
       name:       name,
@@ -282,13 +282,11 @@ function calcReady() {
   var grossYield       = (rent / P) * 100;
   var netYield         = (netAnnualIncome / totalIn) * 100;
 
-  var exitValue    = P * Math.pow(1 + apprPct, holdYears);
-  var exitAgentFee = 0.02 * exitValue;
-  var netExitValue = exitValue - exitAgentFee;
-  var capitalGain  = netExitValue - P;
+  var exitValue   = P * Math.pow(1 + apprPct, holdYears);
+  var capitalGain = exitValue - P;
 
   var totalNetRent = netAnnualIncome * holdYears;
-  var netProfit    = totalNetRent + netExitValue - totalIn;
+  var netProfit    = totalNetRent + exitValue - totalIn;
   var totalROI     = (netProfit / totalIn) * 100;
   var annROI       = (Math.pow(1 + Math.abs(totalROI / 100), 1 / holdYears) - 1) * 100 * (totalROI < 0 ? -1 : 1);
   var scCoverage   = (rent / serviceCharge).toFixed(1) + 'x';
@@ -318,17 +316,15 @@ function calcReady() {
   ]);
 
   html += breakdown('Exit After ' + holdYears + ' Year' + (holdYears !== 1 ? 's' : ''), [
-    ['Property Value at Exit', fmt(exitValue)],
-    ['DLD (4%) — paid at entry, not exit', fmt(dld), 'amber'],
-    ['Exit Agency Fee (2%)', '– ' + fmt(exitAgentFee)],
-    ['Net Sale Proceeds', fmt(netExitValue), 'green'],
-    ['Capital Gain (net of exit agent)', fmt(capitalGain), 'green']
+    ['Property Value at Exit', fmt(exitValue), 'green'],
+    ['DLD (4%) — paid by incoming buyer, not you', fmt(dld)],
+    ['Capital Gain', fmt(capitalGain), 'green']
   ]);
 
   html += breakdown('Full ' + holdYears + '-Year Summary', [
     ['Total Cash Invested (incl. 4% DLD)', fmt(totalIn)],
     ['Total Net Rental Income', fmt(totalNetRent), 'green'],
-    ['Net Sale Proceeds', fmt(netExitValue), 'green'],
+    ['Net Sale Proceeds (buyer pays DLD + commission)', fmt(exitValue), 'green'],
     ['Net Profit', fmt(netProfit), netProfit >= 0 ? 'green' : ''],
     ['Total ROI', fmtPct(totalROI)],
     ['Annualised ROI', fmtPct(annROI), 'amber']
@@ -356,7 +352,7 @@ function calcReady() {
       ['Net Annual Income',                  fmt(netAnnualIncome)],
       ['Rent ÷ Service Charge Coverage',     scCoverage],
       ['Property Value at Exit',             fmt(exitValue)],
-      ['Net Sale Proceeds',                  fmt(netExitValue)],
+      ['Net Sale Proceeds',                  fmt(exitValue)],
       ['Total Net Rental Income',            fmt(totalNetRent)],
       ['Net Profit',                         fmt(netProfit)],
       ['Total ROI',                          fmtPct(totalROI)],
@@ -383,7 +379,8 @@ function calcHold() {
   var rent      = parseFloat(document.getElementById('hold-rent').value);
   var size      = parseFloat(document.getElementById('hold-size').value);
   var rate      = parseFloat(document.getElementById('hold-rate').value);
-  var apprPct   = parseFloat(document.getElementById('hold-appr').value) / 100;
+  var apprPct     = parseFloat(document.getElementById('hold-appr').value) / 100;
+  var apprPostPct = parseFloat(document.getElementById('hold-appr-post').value) / 100;
 
   /* ── Phase 1: Off-Plan ── */
   var dp           = dpPct * P;
@@ -392,8 +389,11 @@ function calcHold() {
   var dld          = 0.04 * P;
   var phase1Cash   = dp + constrPaid + dld;
 
-  var fvHandover  = P * Math.pow(1 + apprPct, cperiod);
-  var offPlanGain = fvHandover - P;
+  var fvHandover       = P * Math.pow(1 + apprPct, cperiod);
+  var preHandoverGain  = fvHandover - P;
+  var fvExit           = fvHandover * Math.pow(1 + apprPostPct, pperiod);
+  var postHandoverGain = fvExit - fvHandover;
+  var totalCapGain     = fvExit - P;
 
   /* ── Phase 2: Post-Handover Rental ── */
   var annualInstalment    = postBalance / pperiod;
@@ -410,7 +410,7 @@ function calcHold() {
   /* ── Full Summary ── */
   var totalCashPaid     = phase1Cash + postBalance;
   var netCashFromPocket = totalCashPaid - totalGrossRent;
-  var netProfit         = offPlanGain - dld + totalNetRent;
+  var netProfit         = totalCapGain - dld + totalNetRent;
   var totalYears        = cperiod + pperiod;
   var roi               = (netProfit / Math.abs(netCashFromPocket)) * 100;
   var annROI            = (Math.pow(1 + Math.abs(roi / 100), 1 / totalYears) - 1) * 100 * (roi < 0 ? -1 : 1);
@@ -426,9 +426,9 @@ function calcHold() {
       ['Construction Payments (' + (constrPct * 100).toFixed(0) + '%)', fmt(constrPaid)],
       ['DLD Fee (4% of purchase price)', fmt(dld), 'amber'],
       ['Phase 1 Total Cash Out', fmt(phase1Cash), 'amber'],
-      ['Annual Appreciation During Construction', fmtPct(apprPct * 100) + ' p.a.'],
+      ['Annual Appreciation During Construction (Pre-Handover)', fmtPct(apprPct * 100) + ' p.a.'],
       ['Property Value at Handover', fmt(fvHandover), 'green'],
-      ['Off-Plan Capital Gain', fmt(offPlanGain), 'green']
+      ['Pre-Handover Capital Gain', fmt(preHandoverGain), 'green']
     ],
     'var(--color-accent)'
   );
@@ -447,7 +447,12 @@ function calcHold() {
       ['Gross Yield (on handover value)', fmtPct(grossYield)],
       ['Net Yield (on handover value)', fmtPct(netYield)],
       ['Total Gross Rent Received', fmt(totalGrossRent), 'green'],
-      ['Total Net Rent (after service charge)', fmt(totalNetRent), 'green']
+      ['Total Net Rent (after service charge)', fmt(totalNetRent), 'green'],
+      ['Property Value at Handover', fmt(fvHandover), 'green'],
+      ['Post-Handover Annual Appreciation', fmtPct(apprPostPct * 100) + ' p.a.'],
+      ['Property Value at Exit (' + pperiod + ' yrs later)', fmt(fvExit), 'green'],
+      ['Post-Handover Capital Gain', fmt(postHandoverGain), 'green'],
+      ['DLD (4%) — paid by incoming buyer', fmt(dld)]
     ],
     '#22c55e'
   );
@@ -455,21 +460,24 @@ function calcHold() {
   /* KPI summary grid */
   html += '<div class="kpi-grid">';
   html += kpiCard('Net Cash From Pocket', fmt(netCashFromPocket), '');
-  html += kpiCard('Final Property Value', fmt(fvHandover), '');
+  html += kpiCard('Final Property Value', fmt(fvExit), '');
   html += kpiCard('Net Profit', fmt(netProfit), netProfit >= 0 ? 'accent-card' : '');
   html += kpiCard('Annualised ROI (' + totalYears + ' yrs)', fmtPct(annROI), '');
   html += '</div>';
 
   html += breakdown('Full ' + totalYears + '-Year Investment Summary', [
     ['Purchase Price', fmt(P)],
-    ['DLD Fee (4%)', fmt(dld), 'amber'],
+    ['DLD Fee (4%) — paid at entry', fmt(dld), 'amber'],
     ['Down Payment + Construction Payments', fmt(dp + constrPaid)],
     ['Post-Handover Instalments Paid', fmt(postBalance)],
     ['Total Cash Paid to Developer + DLD', fmt(totalCashPaid), 'amber'],
     ['Less: Total Gross Rent Received', '– ' + fmt(totalGrossRent), 'green'],
     ['Net Cash From Your Pocket', fmt(netCashFromPocket), 'amber'],
-    ['Property Value at Handover', fmt(fvHandover), 'green'],
-    ['Off-Plan Capital Gain', fmt(offPlanGain), 'green'],
+    ['', ''],
+    ['Pre-Handover Capital Gain', fmt(preHandoverGain), 'green'],
+    ['Post-Handover Capital Gain', fmt(postHandoverGain), 'green'],
+    ['Total Capital Gain', fmt(totalCapGain), 'green'],
+    ['Less: DLD (paid at entry)', '– ' + fmt(dld), 'amber'],
     ['Total Net Rental Income', fmt(totalNetRent), 'green'],
     ['Net Profit', fmt(netProfit), netProfit >= 0 ? 'green' : ''],
     ['Total ROI', fmtPct(roi)],
@@ -492,12 +500,16 @@ function calcHold() {
       ['Property Size',                size.toLocaleString()+' sqft'],
       ['Service Charge Rate',          rate+' AED/sqft/yr'],
       ['Annual Appreciation',          fmtPct(apprPct*100)],
+      ['Post-Handover Appreciation',   fmtPct(apprPostPct*100)],
     ],
     results: [
       ['DLD Fee (4%)',                         fmt(dld)],
       ['Phase 1 Total Cash Out',               fmt(phase1Cash)],
       ['Property Value at Handover',           fmt(fvHandover)],
-      ['Off-Plan Capital Gain',                fmt(offPlanGain)],
+      ['Pre-Handover Capital Gain',            fmt(preHandoverGain)],
+      ['Post-Handover Capital Gain',           fmt(postHandoverGain)],
+      ['Total Capital Gain',                   fmt(totalCapGain)],
+      ['Final Property Value (at Exit)',       fmt(fvExit)],
       ['Annual Instalment to Developer',       fmt(annualInstalment)+' / yr'],
       ['Annual Net Rent',                      fmt(netAnnualRent)+' / yr'],
       ['Annual Net Cash Flow (rent-instalment)',(annualCashFlow>=0?'+':'-')+fmt(Math.abs(annualCashFlow))+' / yr'],
@@ -514,3 +526,10 @@ function calcHold() {
 
   showResults('hold', html);
 }
+
+/* Show lead gate immediately on page load */
+document.addEventListener('DOMContentLoaded', function () {
+  if (!_leadCaptured) {
+    document.getElementById('lead-modal').classList.add('open');
+  }
+});

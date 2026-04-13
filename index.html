@@ -30,6 +30,36 @@
     /* ── 3D Scene Setup ───────────────────────────────── */
     body { overflow-x: hidden; }
 
+    /* ── Hero — dark premium background + white text ─── */
+    .hero {
+      background: linear-gradient(160deg, #0a0f1e 0%, #111827 55%, #0d1117 100%) !important;
+    }
+    .hero-title {
+      color: #ffffff;
+      text-shadow: 0 2px 24px rgba(0,0,0,0.55);
+    }
+    .hero-sub {
+      color: rgba(255,255,255,0.72);
+    }
+    /* Ensure nav logo stays readable on dark hero */
+    .hero .hero-label { color: var(--color-accent); }
+
+    /* Subtle readability gradient behind hero text on mobile */
+    @media (max-width: 768px) {
+      .hero-text {
+        position: relative;
+      }
+      .hero-text::before {
+        content: '';
+        position: absolute;
+        inset: -32px -24px;
+        background: radial-gradient(ellipse at 50% 40%, rgba(0,0,0,0.35) 0%, transparent 75%);
+        pointer-events: none;
+        z-index: 0;
+      }
+      .hero-text > * { position: relative; z-index: 1; }
+    }
+
     /* perspective container for the whole page */
     #scene-root {
       perspective: 1200px;

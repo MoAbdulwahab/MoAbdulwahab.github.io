@@ -1,29 +1,3 @@
-// ── Mobile nav toggle ────────────────────────────────
-const toggle = document.getElementById("nav-toggle");
-const links = document.getElementById("nav-links");
-
-toggle.addEventListener("click", () => links.classList.toggle("open"));
-
-// Mobile dropdown toggle
-document.querySelectorAll(".nav-dropdown > a").forEach((dropLink) => {
-  dropLink.addEventListener("click", (e) => {
-    if (window.innerWidth <= 768) {
-      e.preventDefault();
-      dropLink.closest(".nav-dropdown").classList.toggle("open");
-    }
-  });
-});
-
-links.querySelectorAll("a:not(.nav-dropdown > a)").forEach((link) => {
-  link.addEventListener("click", () => links.classList.remove("open"));
-});
-
-// ── Scroll: nav background ──────────────────────────
-const nav = document.getElementById("nav");
-window.addEventListener("scroll", () => {
-  nav.classList.toggle("scrolled", window.scrollY > 50);
-});
-
 // ── Multi-step Lead Form (Branching) ────────────────
 const form = document.getElementById("lead-form");
 const progressBar = document.getElementById("progress-bar");

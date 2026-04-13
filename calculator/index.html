@@ -1086,9 +1086,16 @@
         </div>
 
         <div class="form-group">
-          <label>Off-Plan Appreciation <span class="hint">(construction period only)</span></label>
+          <label>Pre-Handover Appreciation <span class="hint">(during construction)</span></label>
           <div class="input-wrap">
             <input type="number" id="hold-appr" value="10" min="0" max="100" step="0.5">
+            <span class="suffix">% p.a.</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Post-Handover Appreciation <span class="hint">(after completion, slower)</span></label>
+          <div class="input-wrap">
+            <input type="number" id="hold-appr-post" value="4" min="0" max="50" step="0.5">
             <span class="suffix">% p.a.</span>
           </div>
         </div>
@@ -1115,9 +1122,9 @@
 ════════════════════════════════════════════════════════════ -->
 <div class="modal-overlay" id="lead-modal" role="dialog" aria-modal="true" aria-label="Unlock your results">
   <div class="modal-box">
-    <div class="modal-tag">Unlock Full Analysis</div>
-    <h3>Where Should We Send Your Report?</h3>
-    <p class="modal-desc">Your personalised investment breakdown is ready. Enter your details to view your results — no spam, ever.</p>
+    <div class="modal-tag">Free Instant Access</div>
+    <h3>Access the Investment Calculator</h3>
+    <p class="modal-desc">Enter your details for free access to all three Dubai investment strategies. Your session stays unlocked as long as you're on this page.</p>
 
     <div class="modal-field">
       <label>Full Name *</label>
@@ -1134,7 +1141,7 @@
 
     <div class="modal-error" id="lead-error">Please fill in all fields to continue.</div>
 
-    <button class="modal-submit" onclick="submitLead()">View My Results →</button>
+    <button class="modal-submit" onclick="submitLead()">Unlock Calculator →</button>
     <p class="modal-privacy">By continuing you agree to our <a href="/privacy/">Privacy Policy</a> and <a href="/terms/">Terms</a>.</p>
   </div>
 </div>
