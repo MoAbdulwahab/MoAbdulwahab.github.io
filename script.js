@@ -99,19 +99,29 @@ document.querySelectorAll(".form-back").forEach((btn) => {
   });
 });
 
-// Form submission
+// Form submission — Web3Forms (free, no backend needed)
 form.addEventListener("submit", (e) => {
   e.preventDefault();
 
   const formData = new FormData(form);
+  const data = {
+    access_key: "YOUR_WEB3FORMS_KEY",
+    subject: "New Lead — Mohamed Abdulwahab Website",
+    from_name: "MA Website",
+    intent:  formData.get("intent")  || "",
+    budget:  formData.get("budget")  || "",
+    name:    formData.get("name")    || "",
+    email:   formData.get("email")   || "",
+    phone:   formData.get("phone")   || "",
+  };
 
-  fetch("/", {
+  fetch("https://api.web3forms.com/submit", {
     method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams(formData).toString(),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
   })
   .then(() => showStep("4"))
-  .catch(() => showStep("4")); // Show success anyway, Netlify will retry
+  .catch(() => showStep("4"));
 });
 
 // ── Scroll: fade-in animations ──────────────────────

@@ -1139,17 +1139,6 @@
   </div>
 </div>
 
-<!-- Hidden Netlify form (for form detection at build time) -->
-<form name="investment-lead" data-netlify="true" netlify-honeypot="bot-field" class="netlify-hidden">
-  <input name="bot-field">
-  <input name="name">
-  <input name="email">
-  <input name="phone">
-  <input name="strategy">
-  <input name="inputs">
-  <input name="results">
-</form>
-
 <!-- FOOTER -->
 <footer class="footer">
   <div class="container footer-inner">
@@ -1244,24 +1233,22 @@
     }
   });
 
-  /* ── Netlify form submission ────────────────────────── */
+  /* ── Web3Forms submission (free email notifications) ── */
   function submitToNetlify(name, email, phone, strategy, inputs, results) {
-    var body = new URLSearchParams({
-      'form-name': 'investment-lead',
-      'name': name,
-      'email': email,
-      'phone': phone,
-      'strategy': strategy,
-      'inputs': inputs,
-      'results': results
-    });
-    fetch('/calculator/', {
+    fetch('https://api.web3forms.com/submit', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: body.toString()
-    }).catch(function() {
-      // Fallback: try root path
-      fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body.toString() });
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        access_key: 'YOUR_WEB3FORMS_KEY',
+        subject: 'New Calculator Lead — ' + strategy,
+        from_name: 'MA Investment Calculator',
+        name: name,
+        email: email,
+        phone: phone,
+        strategy: strategy,
+        inputs: inputs,
+        results: results
+      })
     });
   }
 
