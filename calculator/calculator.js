@@ -65,6 +65,12 @@ function buildCalcMessage(name, email, phone) {
   return lines.join('\n');
 }
 
+/* Close modal without submitting — user can browse but results stay locked */
+function closeModal() {
+  document.getElementById('lead-modal').classList.remove('open');
+  _pendingResults = null;   /* discard pending calculation — they chose to skip */
+}
+
 function showResults(strategy, html) {
   _currentStrategy = strategy;
   if (_leadCaptured) {

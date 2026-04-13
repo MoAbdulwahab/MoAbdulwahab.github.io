@@ -587,6 +587,35 @@
       width: 100%;
       position: relative;
     }
+    /* Close (×) button */
+    .modal-close {
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #999999;
+      font-size: 1.4rem;
+      line-height: 1;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: color 0.15s, background 0.15s;
+    }
+    .modal-close:hover { color: #333333; background: rgba(0,0,0,0.06); }
+    /* Skip link */
+    .modal-skip {
+      display: block;
+      text-align: center;
+      font-size: 0.75rem;
+      color: #999999;
+      margin-top: 14px;
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      transition: color 0.15s;
+    }
+    .modal-skip:hover { color: #555555; }
     .modal-box .modal-tag {
       display: inline-block;
       background: rgba(184,155,94,0.12);
@@ -1122,6 +1151,7 @@
 ════════════════════════════════════════════════════════════ -->
 <div class="modal-overlay" id="lead-modal" role="dialog" aria-modal="true" aria-label="Unlock your results">
   <div class="modal-box">
+    <button class="modal-close" onclick="closeModal()" aria-label="Close">&#x2715;</button>
     <div class="modal-tag">Free Instant Access</div>
     <h3>Access the Investment Calculator</h3>
     <p class="modal-desc">Enter your details for free access to all three Dubai investment strategies. Your session stays unlocked as long as you're on this page.</p>
@@ -1143,6 +1173,7 @@
 
     <button class="modal-submit" onclick="submitLead()">Unlock Calculator →</button>
     <p class="modal-privacy">By continuing you agree to our <a href="/privacy/">Privacy Policy</a> and <a href="/terms/">Terms</a>.</p>
+    <span class="modal-skip" onclick="closeModal()">No thanks, I'll browse without saving results</span>
   </div>
 </div>
 
