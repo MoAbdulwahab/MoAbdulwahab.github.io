@@ -32,6 +32,11 @@
     var hero = document.getElementById('hero');
     if (!hero || typeof THREE === 'undefined') return;
 
+    /* Skip Three.js on very small phones to preserve performance */
+    if (window.innerWidth < 480) return;
+
+    var isMobile = window.matchMedia('(max-width: 768px)').matches;
+
     var canvas = document.createElement('canvas');
     canvas.id = 'hero-canvas';
     hero.insertBefore(canvas, hero.firstChild);
@@ -39,8 +44,8 @@
     var W = canvas.offsetWidth  = hero.offsetWidth;
     var H = canvas.offsetHeight = hero.offsetHeight;
 
-    var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: !isMobile, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2));
     renderer.setSize(W, H);
     renderer.setClearColor(0x000000, 0);
 
@@ -61,8 +66,8 @@
     var gridMat = new THREE.LineBasicMaterial({ color: 0xb89b5e, transparent: true, opacity: 0.08 });
     scene.add(new THREE.LineSegments(gridGeo, gridMat));
 
-    /* ── Particle field ── */
-    var pCount = 900;
+    /* ── Particle field (fewer on mobile for performance) ── */
+    var pCount = isMobile ? 280 : 900;
     var pPos   = new Float32Array(pCount * 3);
     var pSizes = new Float32Array(pCount);
     for (var p = 0; p < pCount; p++) {
@@ -197,16 +202,19 @@
     if (sub)     sub.classList.add('depth-mid');
     if (actions) actions.classList.add('depth-far');
 
-    document.addEventListener('mousemove', function (e) {
-      var cx = window.innerWidth  / 2;
-      var cy = window.innerHeight / 2;
-      var dx = (e.clientX - cx) / cx;
-      var dy = (e.clientY - cy) / cy;
+    /* Skip mouse parallax on touch devices — no mouse events fire */
+    if (!window.matchMedia('(pointer: coarse)').matches) {
+      document.addEventListener('mousemove', function (e) {
+        var cx = window.innerWidth  / 2;
+        var cy = window.innerHeight / 2;
+        var dx = (e.clientX - cx) / cx;
+        var dy = (e.clientY - cy) / cy;
 
-      if (title)   gsap.to(title,   { x: dx * -14, y: dy * -10, duration: 0.8, ease: 'power2.out' });
-      if (sub)     gsap.to(sub,     { x: dx *  -7, y: dy *  -5, duration: 0.9, ease: 'power2.out' });
-      if (actions) gsap.to(actions, { x: dx *  -3, y: dy *  -2, duration: 1.0, ease: 'power2.out' });
-    });
+        if (title)   gsap.to(title,   { x: dx * -14, y: dy * -10, duration: 0.8, ease: 'power2.out' });
+        if (sub)     gsap.to(sub,     { x: dx *  -7, y: dy *  -5, duration: 0.9, ease: 'power2.out' });
+        if (actions) gsap.to(actions, { x: dx *  -3, y: dy *  -2, duration: 1.0, ease: 'power2.out' });
+      });
+    }
 
     /* Scroll: hero text rises out of frame with depth */
     gsap.to('.hero-text', {
@@ -347,6 +355,9 @@
      5. 3D CARD TILT — Developer cards + diff items
   ════════════════════════════════════════════════════════════ */
   function setupCardTilt() {
+    /* No tilt on touch/mobile — no hover events, would break tap UX */
+    if (window.matchMedia('(pointer: coarse)').matches) return;
+
     var cards = document.querySelectorAll('.developer-card, .diff-compare, .form-card');
 
     cards.forEach(function (card) {
