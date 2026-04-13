@@ -36,6 +36,34 @@ function backToSelector() {
 var _pendingResults  = null;
 var _leadCaptured    = false;
 var _currentStrategy = '';
+var _lastInputs      = null;   /* populated by each calc function */
+
+/* Builds a plain-text email body from stored inputs + results */
+function buildCalcMessage(name, email, phone) {
+  if (!_lastInputs) return '';
+  var sep = '────────────────────────────────\n';
+  var lines = [
+    'STRATEGY: ' + _lastInputs.strategy,
+    sep,
+    'LEAD',
+    '  Name:   ' + name,
+    '  Email:  ' + email,
+    '  Phone:  ' + phone,
+    '',
+    'INPUTS'
+  ];
+  _lastInputs.fields.forEach(function(f) {
+    lines.push('  ' + f[0] + ':  ' + f[1]);
+  });
+  lines.push('');
+  lines.push('KEY RESULTS');
+  _lastInputs.results.forEach(function(r) {
+    lines.push('  ' + r[0] + ':  ' + r[1]);
+  });
+  lines.push('');
+  lines.push(sep + 'Submitted via Investment Calculator');
+  return lines.join('\n');
+}
 
 function showResults(strategy, html) {
   _currentStrategy = strategy;
@@ -82,10 +110,14 @@ function submitLead() {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       access_key: '78092144-5fbb-45d4-9d01-5056b58d5eb1',
-      subject: 'New Calculator Lead — ' + _currentStrategy,
-      from_name: 'MA Investment Calculator',
-      name: name, email: email, phone: phone,
-      strategy: _currentStrategy
+      subject:    'Calculator Lead — ' + name + ' | ' + _currentStrategy,
+      from_name:  'MA Investment Calculator',
+      replyto:    email,
+      name:       name,
+      email:      email,
+      phone:      phone,
+      strategy:   _currentStrategy,
+      message:    buildCalcMessage(name, email, phone)
     })
   }).catch(function() {});
 }
@@ -199,6 +231,31 @@ function calcFlip() {
 
   html += ctaBox();
   html += pdfBtn();
+
+  _lastInputs = {
+    strategy: 'Off-Plan Flip',
+    fields: [
+      ['Purchase Price',        fmt(P)],
+      ['Down Payment',          (dpPct*100).toFixed(0)+'% = '+fmt(dp)],
+      ['Construction Payments', (constrPct*100).toFixed(0)+'% = '+fmt(constrPaid)],
+      ['Remaining Balance',     fmt(remainingBal)],
+      ['Hold / Build Period',   years+' year'+(years!==1?'s':'')],
+      ['Annual Appreciation',   fmtPct(apprPct*100)],
+      ['DLD Rate',              (dldPct*100).toFixed(0)+'%'],
+    ],
+    results: [
+      ['Total Cash Deployed',       fmt(totalCashIn)],
+      ['DLD Fee',                   fmt(dld)],
+      ['Property Value at Handover',fmt(fvHandover)],
+      ['Net Assignment Proceeds',   fmt(assignProceeds)],
+      ['Appreciation Gain',         fmt(appreciationGain)],
+      ['Net Profit',                fmt(netProfit)],
+      ['ROI on Cash',               fmtPct(roi)],
+      ['Annualised Return',         fmtPct(annROI)],
+      ['Equity Multiple',           fmtX(multiple)],
+    ]
+  };
+
   showResults('flip', html);
 }
 
@@ -279,6 +336,34 @@ function calcReady() {
 
   html += ctaBox();
   html += pdfBtn();
+
+  _lastInputs = {
+    strategy: 'Ready Property',
+    fields: [
+      ['Purchase Price',       fmt(P)],
+      ['Annual Gross Rent',    fmt(rent)],
+      ['Property Size',        size.toLocaleString()+' sqft'],
+      ['Service Charge Rate',  rate+' AED/sqft/yr'],
+      ['Other Annual Expenses',fmt(expenses)],
+      ['Annual Appreciation',  fmtPct(apprPct*100)],
+      ['Hold Period',          holdYears+' year'+(holdYears!==1?'s':'')],
+    ],
+    results: [
+      ['Total Cash Invested (incl. 4% DLD)', fmt(totalIn)],
+      ['DLD Fee (4%)',                       fmt(dld)],
+      ['Gross Yield',                        fmtPct(grossYield)],
+      ['Net Yield',                          fmtPct(netYield)],
+      ['Net Annual Income',                  fmt(netAnnualIncome)],
+      ['Rent ÷ Service Charge Coverage',     scCoverage],
+      ['Property Value at Exit',             fmt(exitValue)],
+      ['Net Sale Proceeds',                  fmt(netExitValue)],
+      ['Total Net Rental Income',            fmt(totalNetRent)],
+      ['Net Profit',                         fmt(netProfit)],
+      ['Total ROI',                          fmtPct(totalROI)],
+      ['Annualised ROI',                     fmtPct(annROI)],
+    ]
+  };
+
   showResults('ready', html);
 }
 
@@ -393,5 +478,39 @@ function calcHold() {
 
   html += ctaBox();
   html += pdfBtn();
+
+  _lastInputs = {
+    strategy: 'Off-Plan Hold',
+    fields: [
+      ['Purchase Price',               fmt(P)],
+      ['Down Payment',                 (dpPct*100).toFixed(0)+'% = '+fmt(dp)],
+      ['Construction Payments',        (constrPct*100).toFixed(0)+'% = '+fmt(constrPaid)],
+      ['Post-Handover Balance',        (postPct*100).toFixed(0)+'% = '+fmt(postBalance)],
+      ['Construction Period',          cperiod+' year'+(cperiod>1?'s':'')],
+      ['Post-Handover Payment Period', pperiod+' year'+(pperiod>1?'s':'')],
+      ['Annual Gross Rent',            fmt(rent)+' / yr'],
+      ['Property Size',                size.toLocaleString()+' sqft'],
+      ['Service Charge Rate',          rate+' AED/sqft/yr'],
+      ['Annual Appreciation',          fmtPct(apprPct*100)],
+    ],
+    results: [
+      ['DLD Fee (4%)',                         fmt(dld)],
+      ['Phase 1 Total Cash Out',               fmt(phase1Cash)],
+      ['Property Value at Handover',           fmt(fvHandover)],
+      ['Off-Plan Capital Gain',                fmt(offPlanGain)],
+      ['Annual Instalment to Developer',       fmt(annualInstalment)+' / yr'],
+      ['Annual Net Rent',                      fmt(netAnnualRent)+' / yr'],
+      ['Annual Net Cash Flow (rent-instalment)',(annualCashFlow>=0?'+':'-')+fmt(Math.abs(annualCashFlow))+' / yr'],
+      ['Tenant Coverage Ratio',                fmtPct(tenantCovPct)],
+      ['Gross Yield (on handover value)',       fmtPct(grossYield)],
+      ['Net Yield (on handover value)',         fmtPct(netYield)],
+      ['Total Net Rent Received',              fmt(totalNetRent)],
+      ['Net Cash From Pocket',                 fmt(netCashFromPocket)],
+      ['Net Profit',                           fmt(netProfit)],
+      ['Total ROI',                            fmtPct(roi)],
+      ['Annualised ROI ('+totalYears+' yrs)',  fmtPct(annROI)],
+    ]
+  };
+
   showResults('hold', html);
 }

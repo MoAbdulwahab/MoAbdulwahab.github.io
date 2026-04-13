@@ -104,15 +104,30 @@ form.addEventListener("submit", (e) => {
   e.preventDefault();
 
   const formData = new FormData(form);
+  const intent = formData.get("intent") || "";
+  const budget = formData.get("budget") || "";
+  const name   = formData.get("name")   || "";
+  const email  = formData.get("email")  || "";
+  const phone  = formData.get("phone")  || "";
+
+  const message =
+    "Name:    " + name   + "\n" +
+    "Email:   " + email  + "\n" +
+    "Phone:   " + phone  + "\n\n" +
+    "Intent:  " + intent + "\n" +
+    "Budget:  " + (budget || "not selected (explore path)") + "\n";
+
   const data = {
     access_key: "78092144-5fbb-45d4-9d01-5056b58d5eb1",
-    subject: "New Lead — Mohamed Abdulwahab Website",
-    from_name: "MA Website",
-    intent:  formData.get("intent")  || "",
-    budget:  formData.get("budget")  || "",
-    name:    formData.get("name")    || "",
-    email:   formData.get("email")   || "",
-    phone:   formData.get("phone")   || "",
+    subject:    "New Lead — " + name + " | " + intent,
+    from_name:  "MA Website",
+    replyto:    email,
+    name:       name,
+    email:      email,
+    phone:      phone,
+    intent:     intent,
+    budget:     budget,
+    message:    message,
   };
 
   fetch("https://api.web3forms.com/submit", {
