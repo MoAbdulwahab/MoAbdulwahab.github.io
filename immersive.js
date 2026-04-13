@@ -233,10 +233,13 @@
     if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
     gsap.registerPlugin(ScrollTrigger);
 
+    /* Desktop-aware trigger: fires when element is 25% from bottom on any screen */
+    var T = 'top 75%';
+
     /* Section labels */
     gsap.utils.toArray('.section-label').forEach(function (el) {
       gsap.from(el, {
-        scrollTrigger: { trigger: el, start: 'top 88%' },
+        scrollTrigger: { trigger: el, start: T },
         opacity: 0, x: -30, duration: 0.7, ease: 'power3.out'
       });
     });
@@ -249,7 +252,7 @@
       }).join(' ');
 
       gsap.from(el.querySelectorAll('.word'), {
-        scrollTrigger: { trigger: el, start: 'top 85%' },
+        scrollTrigger: { trigger: el, start: T },
         opacity: 0,
         y: 50,
         rotationX: 60,
@@ -259,16 +262,24 @@
       });
     });
 
+    /* Section sub text */
+    gsap.utils.toArray('.section-sub, .section-sub-light').forEach(function (el) {
+      gsap.from(el, {
+        scrollTrigger: { trigger: el, start: T },
+        opacity: 0, y: 24, duration: 0.7, ease: 'power2.out'
+      });
+    });
+
     /* Trust bar — slide + fade */
     gsap.from('.trust-bar', {
-      scrollTrigger: { trigger: '.trust-bar', start: 'top 92%' },
+      scrollTrigger: { trigger: '.trust-bar', start: T },
       opacity: 0, y: 20, duration: 0.6
     });
 
     /* Diff compare items — 3D card flip from depth */
     gsap.utils.toArray('.diff-item').forEach(function (el, i) {
       gsap.from(el, {
-        scrollTrigger: { trigger: el, start: 'top 88%' },
+        scrollTrigger: { trigger: el, start: T },
         opacity: 0,
         y: 60,
         rotationX: 30,
@@ -283,7 +294,7 @@
     gsap.utils.toArray('.developer-card').forEach(function (el, i) {
       var dir = i % 2 === 0 ? -1 : 1;
       gsap.from(el, {
-        scrollTrigger: { trigger: el, start: 'top 90%' },
+        scrollTrigger: { trigger: el, start: T },
         opacity: 0,
         x: dir * 40,
         z: -80,
@@ -294,11 +305,48 @@
       });
     });
 
+    /* Service / process cards */
+    gsap.utils.toArray('.service-card, .process-step').forEach(function (el, i) {
+      gsap.from(el, {
+        scrollTrigger: { trigger: el, start: T },
+        opacity: 0,
+        y: 40,
+        duration: 0.65,
+        delay: (i % 4) * 0.08,
+        ease: 'power3.out'
+      });
+    });
+
+    /* Blog / playbook cards */
+    gsap.utils.toArray('.blog-card, .playbook-card, .insight-card').forEach(function (el, i) {
+      gsap.from(el, {
+        scrollTrigger: { trigger: el, start: T },
+        opacity: 0,
+        y: 36,
+        duration: 0.6,
+        delay: (i % 3) * 0.09,
+        ease: 'power2.out'
+      });
+    });
+
+    /* Testimonials */
+    gsap.utils.toArray('.testimonial-card').forEach(function (el, i) {
+      gsap.from(el, {
+        scrollTrigger: { trigger: el, start: T },
+        opacity: 0,
+        scale: 0.95,
+        y: 30,
+        duration: 0.7,
+        delay: i * 0.12,
+        ease: 'power2.out'
+      });
+    });
+
     /* Form section — depth zoom in */
     var formSection = document.querySelector('.section-form');
     if (formSection) {
       gsap.from('.form-card', {
-        scrollTrigger: { trigger: formSection, start: 'top 75%' },
+        scrollTrigger: { trigger: formSection, start: T },
         opacity: 0,
         y: 80,
         z: -120,
@@ -308,7 +356,7 @@
         ease: 'expo.out'
       });
       gsap.from('.form-info > *', {
-        scrollTrigger: { trigger: formSection, start: 'top 80%' },
+        scrollTrigger: { trigger: formSection, start: T },
         opacity: 0,
         x: -50,
         stagger: 0.15,
@@ -320,7 +368,7 @@
     /* Stats / metric items */
     gsap.utils.toArray('.metric, .stat-item, .proof-stat').forEach(function (el, i) {
       gsap.from(el, {
-        scrollTrigger: { trigger: el, start: 'top 90%' },
+        scrollTrigger: { trigger: el, start: T },
         opacity: 0,
         scale: 0.7,
         y: 30,
@@ -332,7 +380,7 @@
 
     /* Footer */
     gsap.from('.footer', {
-      scrollTrigger: { trigger: '.footer', start: 'top 95%' },
+      scrollTrigger: { trigger: '.footer', start: 'top 90%' },
       opacity: 0,
       y: 30,
       duration: 0.7

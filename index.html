@@ -30,36 +30,6 @@
     /* ── 3D Scene Setup ───────────────────────────────── */
     body { overflow-x: hidden; }
 
-    /* ── Hero — dark premium background + white text ─── */
-    .hero {
-      background: linear-gradient(160deg, #0a0f1e 0%, #111827 55%, #0d1117 100%) !important;
-    }
-    .hero-title {
-      color: #ffffff;
-      text-shadow: 0 2px 24px rgba(0,0,0,0.55);
-    }
-    .hero-sub {
-      color: rgba(255,255,255,0.72);
-    }
-    /* Ensure nav logo stays readable on dark hero */
-    .hero .hero-label { color: var(--color-accent); }
-
-    /* Subtle readability gradient behind hero text on mobile */
-    @media (max-width: 768px) {
-      .hero-text {
-        position: relative;
-      }
-      .hero-text::before {
-        content: '';
-        position: absolute;
-        inset: -32px -24px;
-        background: radial-gradient(ellipse at 50% 40%, rgba(0,0,0,0.35) 0%, transparent 75%);
-        pointer-events: none;
-        z-index: 0;
-      }
-      .hero-text > * { position: relative; z-index: 1; }
-    }
-
     /* perspective container for the whole page */
     #scene-root {
       perspective: 1200px;
@@ -158,12 +128,10 @@
       flex-wrap: wrap;
     }
     .hero-stat {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(184,155,94,0.35);
+      background: rgba(184,155,94,0.07);
+      border: 1px solid rgba(184,155,94,0.28);
       border-radius: 10px;
       padding: 14px 22px;
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
     }
     .hero-stat .hs-value {
       font-family: var(--font-heading);
@@ -174,10 +142,11 @@
     }
     .hero-stat .hs-label {
       font-size: 0.72rem;
-      color: rgba(255,255,255,0.88);
+      color: #444444;
       text-transform: uppercase;
       letter-spacing: 0.08em;
       margin-top: 5px;
+      font-weight: 600;
     }
 
     /* ── Hero stats — tablet (≤900px) ── */
