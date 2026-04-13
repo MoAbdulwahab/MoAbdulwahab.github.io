@@ -105,7 +105,7 @@ form.addEventListener("submit", (e) => {
 
   const formData = new FormData(form);
   const data = {
-    access_key: "YOUR_WEB3FORMS_KEY",
+    access_key: "78092144-5fbb-45d4-9d01-5056b58d5eb1",
     subject: "New Lead — Mohamed Abdulwahab Website",
     from_name: "MA Website",
     intent:  formData.get("intent")  || "",
