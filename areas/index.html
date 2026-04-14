@@ -8,13 +8,13 @@
   <meta property="og:title" content="Dubai Investment Districts | Interactive Map | Mohamed Abdulwahab">
   <meta property="og:description" content="Interactive 3D map of Dubai's prime investment districts — live price data, rental yields, appreciation forecasts, and full investment guides.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://mohamed-abdulwahab.netlify.app/areas/">
-  <meta property="og:image" content="https://mohamed-abdulwahab.netlify.app/images/mohamed.jpg">
+  <meta property="og:url" content="https://moabdulwahab.github.io/areas/">
+  <meta property="og:image" content="https://moabdulwahab.github.io/images/mohamed.jpg">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="geo.region" content="AE-DU">
   <meta name="geo.placename" content="Dubai">
   <meta name="robots" content="index, follow">
-  <link rel="canonical" href="https://mohamed-abdulwahab.netlify.app/areas/">
+  <link rel="canonical" href="https://moabdulwahab.github.io/areas/">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="apple-touch-icon" href="/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -28,7 +28,7 @@
     "@context": "https://schema.org",
     "@type": "RealEstateAgent",
     "name": "Mohamed Abdulwahab",
-    "url": "https://mohamed-abdulwahab.netlify.app",
+    "url": "https://moabdulwahab.github.io",
     "telephone": "+971585749799",
     "areaServed": [
       {"@type": "Place", "name": "Downtown Dubai"},
@@ -51,7 +51,7 @@
       --navy: #0a0f1e;
       --navy-mid: #111827;
       --navy-card: #151d2e;
-      --map-height: calc(100vh - 68px);
+      --map-height: 680px;   /* Fixed height — page scrolls freely past the map */
     }
 
     /* ── Hero ─────────────────────────────────────────── */
@@ -136,7 +136,18 @@
       position: relative;
       width: 100%;
       height: var(--map-height);
-      min-height: 520px;
+      min-height: 480px;
+      max-height: 780px;
+      background: var(--navy);
+      border-radius: 16px;
+      overflow: hidden;        /* clips markers/panel to map box */
+      margin: 0 auto;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.22);
+      border: 1px solid rgba(184,155,94,0.15);
+    }
+    /* Wrapper keeps the map box inside the content column with side padding */
+    .map-section-wrap {
+      padding: 0 0 0 0;
       background: var(--navy);
     }
     #dubai-map {
@@ -225,30 +236,32 @@
     .area-marker.coming-soon .marker-ring { display: none; }
     .marker-tooltip {
       position: absolute;
-      bottom: calc(100% + 10px);
+      /* show BELOW marker so it stays inside map box more reliably */
+      top: calc(100% + 8px);
       left: 50%;
-      transform: translateX(-50%) translateY(4px);
+      transform: translateX(-50%) translateY(-4px);
       background: rgba(10,15,30,0.92);
-      border: 1px solid rgba(184,155,94,0.25);
+      border: 1px solid rgba(184,155,94,0.3);
       border-radius: 7px;
       padding: 5px 11px;
-      font-size: 11.5px;
+      font-size: 11px;
       font-weight: 600;
       color: #fff;
       white-space: nowrap;
       pointer-events: none;
       opacity: 0;
       transition: opacity 0.18s, transform 0.18s;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+      z-index: 20;
     }
-    .marker-tooltip::after {
+    .marker-tooltip::before {
       content: '';
       position: absolute;
-      top: 100%;
+      bottom: 100%;
       left: 50%;
       transform: translateX(-50%);
       border: 5px solid transparent;
-      border-top-color: rgba(184,155,94,0.25);
+      border-bottom-color: rgba(184,155,94,0.3);
     }
     .area-marker:hover .marker-tooltip,
     .area-marker.active .marker-tooltip {
@@ -798,49 +811,45 @@
     }
 
     @media (max-width: 768px) {
-      :root { --map-height: 72vh; }
+      :root { --map-height: 480px; }
 
       .areas-index-grid {
         grid-template-columns: 1fr 1fr;
         gap: 14px;
       }
 
-      /* Panel slides up from bottom on mobile */
+      /* Panel slides up from bottom on mobile as a bottom sheet */
       .area-panel {
+        position: absolute;
         width: 100%;
-        height: 62vh;
+        height: 58%;            /* covers bottom 58% of the map box */
         top: auto;
         bottom: 0;
         left: 0;
         right: 0;
         border-left: none;
-        border-top: 1px solid rgba(184,155,94,0.2);
-        border-radius: 20px 20px 0 0;
+        border-top: 1px solid rgba(184,155,94,0.22);
+        border-radius: 18px 18px 0 0;
         transform: translateY(100%);
-        /* Smooth transition — overridden during drag */
-        transition: transform 0.48s cubic-bezier(0.22, 1, 0.36, 1);
+        transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
       }
-      .area-panel.open { transform: translateY(0); }
+      .area-panel.open  { transform: translateY(0); }
       .area-panel.dragging { transition: none; }
 
       /* Show drag handle on mobile */
       .panel-drag-handle { display: flex; }
 
-      /* Shift close button so it sits comfortably next to drag bar */
-      .panel-close-btn {
-        top: 8px;
-        right: 14px;
-      }
+      .panel-close-btn { top: 8px; right: 14px; }
 
       .map-legend-box { display: none; }
       .map-hint-pill { display: none; }
     }
 
     @media (max-width: 520px) {
-      :root { --map-height: 62vh; }
+      :root { --map-height: 420px; }
       .areas-index-grid { grid-template-columns: 1fr; }
-      #panel-body { padding: 12px 20px 28px; }
-      .panel-name { font-size: 1.55rem; }
+      #panel-body { padding: 12px 18px 24px; }
+      .panel-name { font-size: 1.45rem; }
       .panel-stats-grid { grid-template-columns: 1fr 1fr; }
     }
   </style>
@@ -887,6 +896,8 @@
 </section>
 
 <!-- ─── 3D Interactive Map ───────────────────────────── -->
+<div style="background:var(--navy);padding:0 0 48px;">
+<div class="container" style="padding-top:0;">
 <div class="map-outer" id="map-outer">
   <div id="dubai-map"></div>
 
@@ -924,7 +935,9 @@
   <div id="map-hint" class="map-hint-pill">
     ✦ &nbsp;Click a marker to explore investment data
   </div>
-</div>
+</div><!-- /map-outer -->
+</div><!-- /container -->
+</div><!-- /dark bg -->
 
 <!-- ─── Areas Grid ──────────────────────────────────── -->
 <section class="section">
@@ -1015,7 +1028,7 @@
         { value: '10-Year Visa',    label: 'Golden Visa' }
       ],
       tags: ['Burj Khalifa', 'Emaar', 'Capital Growth', 'Luxury'],
-      desc: "Emaar's flagship district — home to Burj Khalifa, Dubai Mall, and Dubai Opera. The highest-demand address for capital preservation and long-term appreciation in the Gulf.",
+      desc: "Emaar's flagship district — home to Burj Khalifa, Dubai Mall, and Dubai Opera. A freehold area with direct access to Sheikh Zayed Road and DIFC. The city's benchmark for capital preservation, premium pricing, and institutional-grade tenant demand.",
       cardYield: '5 – 6%', cardPrice: 'AED 2,200–3,500'
     },
     {
@@ -1033,7 +1046,7 @@
         { value: '10-Year Visa',    label: 'Golden Visa' }
       ],
       tags: ['Waterfront', 'Short-Term Rental', 'High Liquidity', 'Marina Views'],
-      desc: "Dubai's premier waterfront district. World-class short-term rental yields, stunning marina views, and unmatched resale liquidity make this the go-to for income-focused investors.",
+      desc: "Over 200 residential towers line a 3km waterfront promenade. Consistently ranked Dubai's top area for luxury apartment sales and rentals. Metro, tram, and direct beach access drive near-100% short-term occupancy — the city's strongest income play.",
       cardYield: '6 – 7.5%', cardPrice: 'AED 1,600–2,800'
     },
     {
@@ -1051,7 +1064,7 @@
         { value: '10-Year Visa',    label: 'Golden Visa' }
       ],
       tags: ['High Yield', 'Affordable Entry', 'Family Community', 'Long-Term Rental'],
-      desc: "Best entry-level yields in Dubai. A master-planned freehold community with strong rental demand from professionals and families. Excellent capital growth backed by steady infrastructure expansion.",
+      desc: "Dubai's most popular freehold area for mid-tier apartments and villas. 10 gated districts with 33 landscaped parks and Circle Mall. The benchmark for yield-focused investors — strong demand from professionals at Mall of the Emirates and Dubai Marina.",
       cardYield: '7 – 8.5%', cardPrice: 'AED 900–1,400'
     },
 
@@ -1070,7 +1083,7 @@
         { value: '10-Year Visa',     label: 'Golden Visa' }
       ],
       tags: ['Ultra-Premium', 'Beachfront', 'Branded Residences', 'Nakheel'],
-      desc: "Palm Jumeirah commands Dubai's highest prices per sqft. Home to ultra-luxury villas, branded residences, and five-star hotel living — the most coveted addresses in the UAE.",
+      desc: "The world's most iconic man-made island. Freehold ownership open to all nationalities, with luxury villas, penthouses, and Atlantis-branded residences. High capital appreciation and rising short-term demand from tourists make this a premier store-of-value asset.",
       cardYield: '5 – 7%', cardPrice: 'AED 3,000–5,000+'
     },
     {
@@ -1087,7 +1100,7 @@
         { value: '10-Year Visa',    label: 'Golden Visa' }
       ],
       tags: ['Mixed-Use', 'Canal Views', 'Business Hub', 'Walkable'],
-      desc: "Adjacent to Downtown with canal-front living at more accessible price points. Strong corporate tenant demand and proximity to DIFC make this a prime mixed-use investment market.",
+      desc: "Dubai's most in-demand area for mid-range apartment rentals. Located along the Dubai Water Canal, 8 minutes from Burj Khalifa, with direct Business Bay Metro access. Consistently tops Bayut's rental search rankings for corporate professionals.",
       cardYield: '5.5 – 7%', cardPrice: 'AED 1,400–2,200'
     },
     {
@@ -1104,7 +1117,7 @@
         { value: '10-Year Visa',    label: 'Golden Visa' }
       ],
       tags: ['Golf Course', 'Family Villas', 'Emaar', 'Green Community'],
-      desc: "Emaar's premium suburban masterplan — 18-hole championship golf, parks, and a full retail mall. Dubai's fastest-growing luxury family community with impressive villa appreciation.",
+      desc: "Joint Emaar–Meraas masterplan with an 18-hole championship golf course, Dubai Hills Mall, and three international schools (GEMS Wellington, GEMS International, GEMS New Millennium). Ranks in Bayut's top areas for high-end villa sales. 20 minutes to Downtown.",
       cardYield: '5.5 – 6.5%', cardPrice: 'AED 1,500–2,500'
     },
     {
@@ -1121,7 +1134,7 @@
         { value: '10-Year Visa',    label: 'Golden Visa' }
       ],
       tags: ['Financial Hub', 'Ultra-Premium', 'C-Suite Demand', 'Art District'],
-      desc: "Home to global banks, hedge funds, and law firms. Ultra-premium demand from C-suite executives and Gate Avenue's luxury retail drive consistent pricing power and near-zero vacancy.",
+      desc: "The region's leading financial centre — home to global banks, hedge funds, law firms, and the Gate Avenue luxury retail district. C-suite executive demand drives near-zero vacancy and consistent pricing power across all market cycles.",
       cardYield: '4.5 – 6%', cardPrice: 'AED 2,800–4,500'
     },
     {
@@ -1138,7 +1151,7 @@
         { value: '10-Year Visa',    label: 'Golden Visa' }
       ],
       tags: ['Emaar', 'Creek Tower', 'Mega-Project', 'Waterfront'],
-      desc: "Emaar's largest master-development — a waterfront city built around the Creek Tower, set to surpass the Burj Khalifa. Off-plan prices still reflect early-stage positioning with massive upside.",
+      desc: "7.4 million sqm of mixed-use freehold waterfront on Dubai Creek. Emaar's most ambitious development — 6km promenade, Creek Beach, future Dubai Metro Blue Line station (2029), and capacity for 200,000 residents. Early-stage pricing with major long-run upside.",
       cardYield: '5.5 – 7%', cardPrice: 'AED 1,500–2,400'
     },
     {
@@ -1155,7 +1168,7 @@
         { value: '10-Year Visa',    label: 'Golden Visa' }
       ],
       tags: ['Lake Views', 'High Yield', 'Metro Access', 'Media City Proximity'],
-      desc: "An established mixed-use cluster opposite Dubai Marina. Strong rental demand from professionals in Media City and TECOM. Solid yields with significant upside as the area continues to upgrade.",
+      desc: "26 clusters and 68 completed towers built around three artificial lakes, with 300+ restaurants and 500+ shops. DMCC Metro Station (Red Line) on your doorstep. One of Bayut's top-ranked areas for mid-range apartment purchases — strong yield with strong liquidity.",
       cardYield: '6 – 8%', cardPrice: 'AED 1,100–1,900'
     },
     {
@@ -1172,7 +1185,7 @@
         { value: '10-Year Visa',    label: 'Golden Visa' }
       ],
       tags: ['Sobha Hartland', 'District One', 'Mega-Project', 'Lagoons'],
-      desc: "A 54-million sqft masterplan spanning Meydan, Sobha Hartland, and District One. Home to Dubai's most photographed crystal lagoon and some of the city's most impressive villa communities.",
+      desc: "54 million sqft master-development spanning District One, Sobha Hartland, and Meydan. Home to Dubai's famous crystal lagoon, Meydan Racecourse, and a growing portfolio of branded villa and apartment communities. One of the city's fastest-appreciating addresses.",
       cardYield: '5 – 6.5%', cardPrice: 'AED 1,600–2,800'
     },
     {
@@ -1223,7 +1236,7 @@
         { value: '10-Year Visa',    label: 'Golden Visa' }
       ],
       tags: ['Metro Route 2020', 'Townhouses', 'Family Community', 'Affordable'],
-      desc: "Served by the Dubai Metro Route 2020 extension. Popular with families seeking villa-style townhouses at accessible prices. Strong rental demand from JLT and Marina professionals.",
+      desc: "Nakheel's 5.6 million sqm freehold community with its own Route 2020 Metro station. Bayut's top-ranked area for mid-range villa rentals — strong demand from Marina and JLT professionals seeking suburban living with full city connectivity.",
       cardYield: '6.5 – 8%', cardPrice: 'AED 900–1,400'
     },
     {
@@ -1257,7 +1270,7 @@
         { value: '10-Year Visa',    label: 'Golden Visa' }
       ],
       tags: ['Trump Golf Club', 'DAMAC', 'Villas', 'Family Community'],
-      desc: "DAMAC's large-scale golf-course community with Trump International Golf Club at its heart. Established infrastructure, strong villa rental demand, and a liquid resale market.",
+      desc: "33+ sub-communities built around Trump International Golf Club. Wide choice of villas, townhouses, and apartments across Trump Estates, Golf Town, The Park Villas and more. Established infrastructure with a strong villa rental market and liquid resales.",
       cardYield: '5.5 – 7%', cardPrice: 'AED 900–1,600'
     },
     {
@@ -1274,7 +1287,7 @@
         { value: '10-Year Visa',    label: 'Golden Visa' }
       ],
       tags: ['Best Value', 'Nshama', 'Townhouses', 'Highest Yield'],
-      desc: "Nshama's master-planned community with the best value townhouses in Dubai. Entry prices from AED 700/sqft with 8%+ yields. Ideal for investors targeting income over prestige at scale.",
+      desc: "Nshama's master-planned community offering Dubai's best-value townhouses. Entry prices from AED 700/sqft deliver 8%+ gross yields — the highest in any established Dubai community. Purpose-built for investors who prioritise income volume over brand prestige.",
       cardYield: '6.5 – 8.5%', cardPrice: 'AED 700–1,100'
     },
     {
@@ -1325,7 +1338,7 @@
         { value: '10-Year Visa',     label: 'Golden Visa' }
       ],
       tags: ['Billionaire Row', 'Montgomerie Golf', 'Ultra-Luxury', 'Limited Supply'],
-      desc: "Dubai's most exclusive villa enclave around the Montgomerie Golf Course. Among the city's largest and most expensive homes — ultra-limited supply with exceptional long-term capital preservation.",
+      desc: "One of Dubai's first freehold areas (est. 2003). Plots from 12,000–45,000 sqft around the 18-hole Montgomerie Golf Club. 5-bed villas average AED 20M with ~3.8% ROI. Ultra-limited supply, gated 24/7 security, and celebrity resident base make this the city's most exclusive enclave.",
       cardYield: '3.5 – 5%', cardPrice: 'AED 3,000–6,000+'
     },
     {
@@ -1342,7 +1355,7 @@
         { value: '10-Year Visa',    label: 'Golden Visa' }
       ],
       tags: ['Emaar', 'Mature Community', 'Family Villas', 'Schools'],
-      desc: "Emaar's flagship villa community since 2003. Mature landscaping, top-rated schools, and solid infrastructure. Reliable long-term price growth with consistent family rental demand across three phases.",
+      desc: "Emaar's 6.5 million sqm landmark — 1,650 acres, 15 gated enclaves, 4,000+ villas, championship golf, Dubai Polo & Equestrian Club, and JESS international school. Ranked by Bayut as one of Dubai's most popular luxury villa communities. Consistent growth since 2003.",
       cardYield: '5 – 6.5%', cardPrice: 'AED 1,200–2,000'
     },
     {
@@ -1494,8 +1507,22 @@
     pitch: OVERVIEW.pitch,
     bearing: OVERVIEW.bearing,
     antialias: true,
-    maxBounds: [[54.3, 24.65], [56.3, 25.65]]
+    maxBounds: [[54.0, 24.5], [56.5, 25.7]]
   });
+
+  /* Disable scroll-zoom so page scrolls freely past the map.
+     Users zoom with pinch (mobile) or the +/- nav buttons. */
+  map.scrollZoom.disable();
+
+  /* Show a brief "use pinch to zoom" tip on desktop scroll over the map */
+  document.getElementById('dubai-map').addEventListener('wheel', function () {
+    var hint = document.getElementById('map-hint');
+    if (!hint) return;
+    hint.textContent = 'Use + / − buttons or pinch to zoom';
+    hint.classList.remove('hide');
+    clearTimeout(hint._t);
+    hint._t = setTimeout(function () { hint.classList.add('hide'); }, 2200);
+  }, { passive: true });
 
   map.addControl(
     new maplibregl.NavigationControl({ visualizePitch: true }),
@@ -1750,61 +1777,56 @@
   /* ═══════════════════════════════════════════════
      MOBILE PANEL: TOUCH DRAG TO DISMISS
   ═══════════════════════════════════════════════ */
-  (function () {
-    var panel = document.getElementById('area-panel');
-    var dragHandle = document.getElementById('panel-drag-handle');
-    if (!panel || !dragHandle) return;
+  var _dragStartY = 0;
+  var _dragCurrentY = 0;
+  var _dragging = false;
+  var _DISMISS = 90; // px down to dismiss
 
-    var startY = 0;
-    var currentY = 0;
-    var dragging = false;
-    var DISMISS_THRESHOLD = 100; // px to swipe down before dismissing
+  var _panel = document.getElementById('area-panel');
+  var _dragHandle = document.getElementById('panel-drag-handle');
 
-    function onTouchStart(e) {
-      if (window.innerWidth > 768) return;
+  if (_panel && _dragHandle) {
+    _dragHandle.addEventListener('touchstart', function (e) {
       if (!panelOpen) return;
-      startY = e.touches[0].clientY;
-      currentY = 0;
-      dragging = true;
-      panel.classList.add('dragging');
-    }
-
-    function onTouchMove(e) {
-      if (!dragging) return;
-      var dy = e.touches[0].clientY - startY;
-      if (dy < 0) dy = 0; // Don't allow dragging up past resting position
-      currentY = dy;
-      panel.style.transform = 'translateY(' + dy + 'px)';
-
-      // Add visual feedback — bar gets lighter as you pull
-      var progress = Math.min(dy / DISMISS_THRESHOLD, 1);
-      var barOpacity = 0.22 + progress * 0.5;
-      var dragBar = document.getElementById('panel-drag-bar');
-      if (dragBar) dragBar.style.background = 'rgba(255,255,255,' + barOpacity + ')';
-    }
-
-    function onTouchEnd() {
-      if (!dragging) return;
-      dragging = false;
-      panel.classList.remove('dragging');
-      panel.style.transform = '';
-
-      var dragBar = document.getElementById('panel-drag-bar');
-      if (dragBar) dragBar.style.background = '';
-
-      if (currentY >= DISMISS_THRESHOLD) {
-        closePanel();
-      }
-      // If not past threshold, snap back (CSS transition handles this)
-    }
-
-    // Attach to the drag handle AND the panel top area
-    dragHandle.addEventListener('touchstart', onTouchStart, { passive: true });
-    document.addEventListener('touchmove', function(e) {
-      if (dragging) { onTouchMove(e); }
+      _dragStartY = e.touches[0].clientY;
+      _dragCurrentY = 0;
+      _dragging = true;
+      _panel.classList.add('dragging');
     }, { passive: true });
-    document.addEventListener('touchend', onTouchEnd, { passive: true });
-  })();
+
+    /* Also allow dragging from the panel header area (top 60px) */
+    _panel.addEventListener('touchstart', function (e) {
+      if (!panelOpen) return;
+      var panelRect = _panel.getBoundingClientRect();
+      var touchY = e.touches[0].clientY;
+      /* Only start drag if touch is in top 60px of panel */
+      if (touchY - panelRect.top > 60) return;
+      _dragStartY = touchY;
+      _dragCurrentY = 0;
+      _dragging = true;
+      _panel.classList.add('dragging');
+    }, { passive: true });
+
+    document.addEventListener('touchmove', function (e) {
+      if (!_dragging) return;
+      var dy = e.touches[0].clientY - _dragStartY;
+      if (dy < 0) dy = 0;
+      _dragCurrentY = dy;
+      _panel.style.transform = 'translateY(' + dy + 'px)';
+      var bar = document.getElementById('panel-drag-bar');
+      if (bar) bar.style.background = 'rgba(255,255,255,' + Math.min(0.22 + (dy / _DISMISS) * 0.5, 0.72) + ')';
+    }, { passive: true });
+
+    document.addEventListener('touchend', function () {
+      if (!_dragging) return;
+      _dragging = false;
+      _panel.classList.remove('dragging');
+      _panel.style.transform = '';
+      var bar = document.getElementById('panel-drag-bar');
+      if (bar) bar.style.background = '';
+      if (_dragCurrentY >= _DISMISS) closePanel();
+    }, { passive: true });
+  }
 
   /* ═══════════════════════════════════════════════
      AMBIENT ROTATION ON OVERVIEW
