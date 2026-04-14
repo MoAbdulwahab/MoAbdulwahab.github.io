@@ -1541,6 +1541,29 @@
   ═══════════════════════════════════════════════ */
   map.on('load', function () {
 
+    /* ── Force English labels on all symbol layers ──────────── */
+    try {
+      map.getStyle().layers.forEach(function (layer) {
+        if (layer.type !== 'symbol') return;
+        var tf = map.getLayoutProperty(layer.id, 'text-field');
+        if (!tf) return;
+
+        /* Convert any expression or string that contains a non-English
+           name reference to use name:en with a fallback to name */
+        var englishExpr = ['coalesce',
+          ['get', 'name:en'],
+          ['get', 'name:latin'],
+          ['get', 'name']
+        ];
+
+        /* Replace if it currently references 'name' in any form */
+        var tfStr = JSON.stringify(tf);
+        if (tfStr.indexOf('name') !== -1) {
+          map.setLayoutProperty(layer.id, 'text-field', englishExpr);
+        }
+      });
+    } catch (e) { /* non-fatal — labels are cosmetic */ }
+
     /* ── 3D Building Extrusion ── */
     try {
       var style = map.getStyle();
